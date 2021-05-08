@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "Qo59kf6Tq7De29BoO059wcSA1ABlqdTBjAFRktQ8gax2fsWGACZFBjF8DqYiMZP3jkIstfRNmYD2lcp3Ylg40w==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\57mat\\Documents\\GravityGame\\GravityGame.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\57mat\\.nuget\\packages\\monogame.content.builder.task\\3.8.0.1641\\monogame.content.builder.task.3.8.0.1641.nupkg.sha512",
+    "C:\\Users\\57mat\\.nuget\\packages\\monogame.framework.desktopgl\\3.8.0.1641\\monogame.framework.desktopgl.3.8.0.1641.nupkg.sha512"
+  ],
+  "logs": []
+}

@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>GravityGame</id>
+    <version>1.0.0</version>
+    <authors>GravityGame</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Package Description</description>
+    <dependencies>
+      <group targetFramework=".NETCoreApp3.1">
+        <dependency id="MonoGame.Content.Builder.Task" version="3.8.0.1641" exclude="Build,Analyzers" />
+        <dependency id="MonoGame.Framework.DesktopGL" version="3.8.0.1641" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+    <contentFiles>
+      <files include="any/netcoreapp3.1/Content/bin/DesktopGL/Content/ball.xnb" buildAction="Content" />
+    </contentFiles>
+  </metadata>
+  <files>
+    <file src="C:\Users\57mat\Documents\GravityGame\bin\Debug\netcoreapp3.1\GravityGame.runtimeconfig.json" target="lib\netcoreapp3.1\GravityGame.runtimeconfig.json" />
+    <file src="C:\Users\57mat\Documents\GravityGame\bin\Debug\netcoreapp3.1\GravityGame.dll" target="lib\netcoreapp3.1\GravityGame.dll" />
+    <file src="C:\Users\57mat\Documents\GravityGame\Content\bin\DesktopGL\Content\ball.xnb" target="content\Content\bin\DesktopGL\Content\ball.xnb" />
+    <file src="C:\Users\57mat\Documents\GravityGame\Content\bin\DesktopGL\Content\ball.xnb" target="contentFiles\any\netcoreapp3.1\Content\bin\DesktopGL\Content\ball.xnb" />
+  </files>
+</package>

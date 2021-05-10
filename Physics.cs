@@ -55,17 +55,5 @@ namespace GravityGame
             count = 0;
         }
 
-        //Game runs at 60 fps locked. I know this is bad practice to make a timer frame dependent, meh im lazy
-        public bool timer(int framesTillTrue)
-        {
-            count++;
-            if (count == framesTillTrue)
-            {
-                Debug.WriteLine("TRUE");
-                count = 0;
-                return true;
-            }
-            else return false;
-        }
     }
 }

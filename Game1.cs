@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Diagnostics;
+using System.Timers;
 
 namespace GravityGame
 {
@@ -12,9 +13,11 @@ namespace GravityGame
         private Entity entity;
         private Entity newEntity;
         private Physics physicsBodies;
+        Timer t;
         //Mouse variables for mouse capture
         MouseState mouseState;
         Point mousePosition;
+        GameTime gameTimeX;
         //WINDOW SIZE
         const int WINDOW_WIDTH = 1280;
         const int WINDOW_HEIGHT = 720;
@@ -34,20 +37,19 @@ namespace GravityGame
             _graphics.PreferredBackBufferWidth = WINDOW_WIDTH;
             _graphics.PreferredBackBufferHeight = WINDOW_HEIGHT;
             _graphics.ApplyChanges();
-
+            
             //Loading mouse capture
             mouseState = Mouse.GetState();
             mousePosition = new Point(mouseState.X, mouseState.Y);
-            IsMouseVisible = false;
+            IsMouseVisible = true;
+            gameTimeX = new GameTime();
 
             // LOADING ENTITIES -- MOSTLY FOR DEBUGGING CURRENTLY
-            entity = new Entity(null, new Vector2(100, 100));
-            newEntity = new Entity(null, new Vector2(150, 150));
+            entity = new Entity(null, new Vector2(100, 100), new Vector2(50,50));
             physicsBodies = new Physics(entity);
 
             //Loading variables for swithing
             tog = true;
-            i = 0;
             base.Initialize();
         }
 
@@ -57,7 +59,6 @@ namespace GravityGame
 
             // TODO: use this.Content to load your game content here
             entity.SetTexture(Content.Load<Texture2D>("ball"));
-            newEntity.SetTexture(Content.Load<Texture2D>("ball"));
         }
 
         protected override void Update(GameTime gameTime)
@@ -84,7 +85,24 @@ namespace GravityGame
             {
                 entity.UpdatePos(0, 150, gameTime);
             }
+            i++;
             mouseTracker();
+            foreach (Entity e in physicsBodies.getEntityList())
+            {
+                if (!e.GetDelete())
+                {
+                    e.SetX(e.GetX() + e.GetVelocity().X);
+                    e.SetY(e.GetY() + e.GetVelocity().Y);
+                }
+            }
+            for (int l = 0; l < physicsBodies.getEntityList().Count; l++)
+            {
+                if (physicsBodies.getEntityList()[l].GetDelete())
+                {
+                    physicsBodies.getEntityList().RemoveAt(l);
+                }
+            }
+            Debug.WriteLine(physicsBodies.getEntityList().Count);
             base.Update(gameTime);
         }
 
@@ -111,8 +129,10 @@ namespace GravityGame
         {
             mousePosition = Mouse.GetState().Position;
             mouseSpawner();
-            //Debug.WriteLine("X: " + mousePosition.X + "Y: " + mousePosition.Y);
+            //Debug.WriteLine("MouseX: " + mousePosition.X + "MouseY: " + mousePosition.Y);
+            //Debug.WriteLine("BallX: " + entity.GetX() + "Y: " + entity.GetY());
             // Tracking X position
+            /*
             if (mousePosition.X < 0 + entity.GetTexture().Width)
             {
                 entity.SetX(0);
@@ -138,31 +158,23 @@ namespace GravityGame
             {
                 entity.SetY(mousePosition.Y - entity.GetTexture().Height / 2);
             }
+            */
         }
 
         private void mouseSpawner()
         {
             Entity temp;
- 
             mouseState = Mouse.GetState();
-            if (mouseState.LeftButton == ButtonState.Pressed)
+            if (i > 60)
             {
-                Debug.WriteLine("CLICKED");
-                temp = new Entity(Content.Load<Texture2D>("ball"), mousePosition.ToVector2());
-                physicsBodies.addToList(temp);
-            }
-        }
+                if (mouseState.LeftButton == ButtonState.Pressed)
+                {
+                    i = 0;
+                    temp = new Entity(Content.Load<Texture2D>("ball"), mousePosition.ToVector2() - new Vector2(entity.GetTexture().Width/2, entity.GetTexture().Height/2), new Vector2(-5,-5));
+                    physicsBodies.addToList(temp);
 
-        public bool timer(int framesTillTrue, bool on)
-        {
-            i++;
-            if (i == framesTillTrue)
-            {
-                Debug.WriteLine("TRUE");
-                return true;
+                }
             }
-            else return false;
-
         }
     }
 }

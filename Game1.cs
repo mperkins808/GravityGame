@@ -1,8 +1,10 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
 using System.Diagnostics;
 using System.Timers;
+using TexturePackerLoader;
 
 namespace GravityGame
 {
@@ -14,10 +16,11 @@ namespace GravityGame
         private Entity newEntity;
         private Physics physicsBodies;
         Timer t;
+        SpriteSheet spriteSheet;
+        SpriteRender spriteRender;
         //Mouse variables for mouse capture
         MouseState mouseState;
         Point mousePosition;
-        GameTime gameTimeX;
         //WINDOW SIZE
         const int WINDOW_WIDTH = 1280;
         const int WINDOW_HEIGHT = 720;
@@ -42,7 +45,6 @@ namespace GravityGame
             mouseState = Mouse.GetState();
             mousePosition = new Point(mouseState.X, mouseState.Y);
             IsMouseVisible = true;
-            gameTimeX = new GameTime();
 
             // LOADING ENTITIES -- MOSTLY FOR DEBUGGING CURRENTLY
             entity = new Entity(null, new Vector2(100, 100), new Vector2(50,50));
@@ -50,15 +52,21 @@ namespace GravityGame
 
             //Loading variables for swithing
             tog = true;
+            for (int i = 0; i < TexturePackerMonoGameDefinitions.earthSprites.getSprites().Length; i++)
+            {
+                Debug.WriteLine(TexturePackerMonoGameDefinitions.earthSprites.getSprites()[i]);
+            }
             base.Initialize();
         }
 
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            // TODO: use this.Content to load your game content here
+            var spriteSheetLoader = new SpriteSheetLoader(Content, GraphicsDevice);
+            this.spriteRender = new SpriteRender(this._spriteBatch);
+            spriteSheet = spriteSheetLoader.Load("finalEarthExport.png");
             entity.SetTexture(Content.Load<Texture2D>("ball"));
+        
         }
 
         protected override void Update(GameTime gameTime)
@@ -71,19 +79,38 @@ namespace GravityGame
 
             if (kstate.IsKeyDown(Keys.Right))
             {
-               entity.UpdatePos(150, 0, gameTime);
+                try
+                {
+                    physicsBodies.getEntityList()[0].SetVelocty(new Vector2(75 * (float)gameTime.ElapsedGameTime.TotalSeconds, 0));
+                }
+                catch (ArgumentOutOfRangeException) { }
+
             }
             if (kstate.IsKeyDown(Keys.Left))
             {
-                entity.UpdatePos(-150, 0, gameTime);
+                try
+                {
+                    physicsBodies.getEntityList()[0].SetVelocty(new Vector2(-75 * (float)gameTime.ElapsedGameTime.TotalSeconds, 0));
+                }
+                catch (ArgumentOutOfRangeException) { }
+
             }
             if (kstate.IsKeyDown(Keys.Up))
             {
-                entity.UpdatePos(0, -150, gameTime);
+                try
+                {
+                    physicsBodies.getEntityList()[0].SetVelocty(new Vector2(0, -75 * (float)gameTime.ElapsedGameTime.TotalSeconds));
+                }
+                catch (ArgumentOutOfRangeException) { }
             }
             if (kstate.IsKeyDown(Keys.Down))
             {
-                entity.UpdatePos(0, 150, gameTime);
+                try
+                {
+                    Debug.WriteLine(physicsBodies.getEntityList()[0].GetVelocity().Y);
+                    physicsBodies.getEntityList()[0].SetVelocty(new Vector2(0, 75 * (float)gameTime.ElapsedGameTime.TotalSeconds));
+                }
+                catch (ArgumentOutOfRangeException) { }
             }
             i++;
             mouseTracker();
@@ -91,8 +118,7 @@ namespace GravityGame
             {
                 if (!e.GetDelete())
                 {
-                    e.SetX(e.GetX() + e.GetVelocity().X);
-                    e.SetY(e.GetY() + e.GetVelocity().Y);
+                    e.UpdatePos(gameTime);
                 }
             }
             for (int l = 0; l < physicsBodies.getEntityList().Count; l++)
@@ -102,7 +128,6 @@ namespace GravityGame
                     physicsBodies.getEntityList().RemoveAt(l);
                 }
             }
-            Debug.WriteLine(physicsBodies.getEntityList().Count);
             base.Update(gameTime);
         }
 
@@ -120,7 +145,11 @@ namespace GravityGame
             _spriteBatch.Begin();
             foreach (var entity in physicsBodies.getEntityList())
             {
-                 _spriteBatch.Draw(entity.GetTexture(), entity.GetPosition(), Color.White);
+            this.spriteRender.Draw(
+                this.spriteSheet.Sprite(entity.animations()
+                ), entity.GetPosition()
+                );
+                
             }
             _spriteBatch.End();
         }
@@ -129,36 +158,7 @@ namespace GravityGame
         {
             mousePosition = Mouse.GetState().Position;
             mouseSpawner();
-            //Debug.WriteLine("MouseX: " + mousePosition.X + "MouseY: " + mousePosition.Y);
-            //Debug.WriteLine("BallX: " + entity.GetX() + "Y: " + entity.GetY());
-            // Tracking X position
-            /*
-            if (mousePosition.X < 0 + entity.GetTexture().Width)
-            {
-                entity.SetX(0);
-            }
-            else if (mousePosition.X > WINDOW_WIDTH - entity.GetTexture().Width)
-            {
-                entity.SetX(WINDOW_WIDTH - entity.GetTexture().Width);
-            }
-            else
-            {
-                entity.SetX(mousePosition.X - entity.GetTexture().Width / 2);
-            }
-            //Tracking Y position
-            if (mousePosition.Y < 0 + entity.GetTexture().Height)
-            {
-                entity.SetY(0);
-            }
-            else if (mousePosition.Y > WINDOW_HEIGHT - entity.GetTexture().Height)
-            {
-                entity.SetY(WINDOW_HEIGHT - entity.GetTexture().Height);
-            }
-            else
-            {
-                entity.SetY(mousePosition.Y - entity.GetTexture().Height / 2);
-            }
-            */
+
         }
 
         private void mouseSpawner()
@@ -170,7 +170,7 @@ namespace GravityGame
                 if (mouseState.LeftButton == ButtonState.Pressed)
                 {
                     i = 0;
-                    temp = new Entity(Content.Load<Texture2D>("ball"), mousePosition.ToVector2() - new Vector2(entity.GetTexture().Width/2, entity.GetTexture().Height/2), new Vector2(-5,-5));
+                    temp = new Entity(Content.Load<Texture2D>("ball"), mousePosition.ToVector2(), new Vector2(0,0));
                     physicsBodies.addToList(temp);
 
                 }

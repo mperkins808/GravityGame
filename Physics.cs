@@ -18,9 +18,18 @@ namespace GravityGame
         const float BUFFER = 50;
         //COSTANTS
         const int TIMER = 60;
+
+        const double MASS = 15;
         //Variables
         private bool toggle;
         private int count;
+        private Vector2[] forceVector;
+
+        public struct Distance  
+        {
+            public double X;
+            public double Y;
+        }
         public Physics(List<Entity> entities)
         {
             this.entityList = new List<Entity>();
@@ -39,6 +48,7 @@ namespace GravityGame
 
         public List<Entity> getEntityList()
         {
+            initialG();
             return entityList;
         }
 
@@ -53,6 +63,39 @@ namespace GravityGame
 
             toggle = true;
             count = 0;
+        }
+
+        private void initialG()
+        {
+            Distance[] distance = new Distance[2];
+            Vector2 posCheck = new Vector2();
+            forceVector = new Vector2[2];
+            if (entityList.Count >= 2)
+            {
+                posCheck.X = entityList[0].GetPosition().X - entityList[1].GetPosition().X;
+                posCheck.Y = entityList[0].GetPosition().Y - entityList[1].GetPosition().Y;
+                distance[0].X = (entityList[0].GetPosition().X - entityList[1].GetPosition().X) * (entityList[0].GetPosition().X - entityList[1].GetPosition().X);
+                distance[0].Y = (entityList[0].GetPosition().Y - entityList[1].GetPosition().Y) * (entityList[0].GetPosition().Y - entityList[1].GetPosition().Y);
+                forceVector[0] = new Vector2((float)(((MASS * MASS) / distance[0].X)), (float)(((MASS * MASS) / distance[0].Y)));
+                if (distance[0].X > entityList[0].GetTexture().Width && distance[0].Y! > entityList[0].GetTexture().Height)
+                {
+                    if (posCheck.X > 0 && posCheck.Y < 0)
+                    {
+                        forceVector[0] = new Vector2((float)(((MASS * MASS) / distance[0].X)), -1 * (float)(((MASS * MASS) / distance[0].Y)));
+                    }
+                    else if (posCheck.X < 0 && posCheck.Y > 0)
+                    {
+                        forceVector[0] = new Vector2(-1 * (float)(((MASS * MASS) / distance[0].X)), (float)(((MASS * MASS) / distance[0].Y)));
+                    }
+                    else if (posCheck.X < 0 && posCheck.Y < 0)
+                    {
+                        forceVector[0] = new Vector2(-1 * (float)(((MASS * MASS) / distance[0].X)),-1 * (float)(((MASS * MASS) / distance[0].Y)));
+                    }
+                    entityList[1].SetVelocty(forceVector[0]);
+
+                }
+                Debug.WriteLine("X FORCE: " + forceVector[0].X.ToString() + "Y FORCE: " + forceVector[0].Y.ToString() + "X VEL: " + entityList[1].GetVelocity().X);
+            }
         }
 
     }

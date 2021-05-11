@@ -21,6 +21,9 @@ namespace GravityGame
         const float WINDOW_HEIGHT = 720;
         //MAGIC NUMBERS TO REMOVE
         const float BUFFER = 50;
+        private int i;
+        private int timeSinceLastFrame = 0;
+        private int millisecondsPerFrame = 150;
         public Entity(Texture2D texture, Vector2 pos, Vector2 velocity)
         {
             this.texture = texture;
@@ -29,6 +32,7 @@ namespace GravityGame
             y = position.Y;
             this.velocity = velocity;
             this.delete = false;
+            i = 0;
         }
 
         public void SetTexture(Texture2D texture)
@@ -49,13 +53,12 @@ namespace GravityGame
         }
         public void SetVelocty(Vector2 v)
         {
-            this.velocity = v;
+            this.velocity += v;
         }
         public Vector2 GetVelocity()
         {
             return this.velocity;
         }
-
         public float GetX()
         {
             CheckToDelete();
@@ -63,6 +66,7 @@ namespace GravityGame
         }
         public void SetX(float x)
         {
+            CheckToDelete();
             this.x = x;
             this.position.X = x;
         }
@@ -73,6 +77,7 @@ namespace GravityGame
         }
         public void SetY(float y)
         {
+            CheckToDelete();
             this.y = y;
             this.position.Y = y;
         }
@@ -84,44 +89,16 @@ namespace GravityGame
         {
             return this.delete;
         }
-        private bool borderCheck()
-        {
-            Debug.WriteLine(this.x);
-            if (this.x <= 0)
-            {
-                this.x = 0.01f;
-                this.delete = true;
-                return false;
-            }
-            else if (this.x >= WINDOW_WIDTH - texture.Width)
-            {
-                this.x = WINDOW_WIDTH - texture.Width - 0.01f;
-                this.delete = true;
-                Debug.WriteLine("DELETEPLZ");
-                return false;
-            }
-            else if (this.y <= 0)
-            {
-                this.y = 0.01f;
-                this.delete = true;
-                return false;
-            }
-            else if (this.y >= WINDOW_HEIGHT - texture.Height)
-            {
-                this.y = WINDOW_HEIGHT - texture.Height - 0.01f;
-                this.delete = true;
-                return false;
-            }
-            else return true;
-        }
+
         //Temp debugging functions
         //Called to update the position of the enity
-        public void UpdatePos(float xVel, float yVel, GameTime gameTime)
+        public void UpdatePos(GameTime gameTime)
         {
-            if (borderCheck())
+            timeSinceLastFrame += gameTime.ElapsedGameTime.Milliseconds;
+            if (!this.delete)
             {
-                x += xVel * (float)gameTime.ElapsedGameTime.TotalSeconds;
-                y += yVel * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                SetX(this.x + (GetVelocity().X * (float)gameTime.ElapsedGameTime.TotalSeconds));
+                SetY(this.y + (GetVelocity().Y * (float)gameTime.ElapsedGameTime.TotalSeconds));
             }
         }
        
@@ -134,9 +111,24 @@ namespace GravityGame
         }
 
         //Captures Mouse input and changes color of circle
-        public void changeColorOnMouseInput()
+        public String animations()
         {
-            
+            string[] sprites = TexturePackerMonoGameDefinitions.earthSprites.getSprites();
+            while (i < sprites.Length)
+            {
+                if (timeSinceLastFrame > millisecondsPerFrame)
+                {
+                    timeSinceLastFrame -= millisecondsPerFrame;
+                    i++;
+                }
+                if (i == sprites.Length)
+                {
+                    i = 0;
+                    return sprites[sprites.Length - 1];
+                }
+                return sprites[i];
+            }
+            return "bug";
         }
     }
 }
